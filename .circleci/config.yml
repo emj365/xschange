@@ -29,7 +29,7 @@ jobs:
 
       # install dependencies
       - run: go mod download
-      - run: go get github.com/onsi/ginkgo/ginkgo # for ginkgo bin
+      - run: go install github.com/onsi/ginkgo/ginkgo # for ginkgo bin
 
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
