@@ -2,9 +2,13 @@
 
 [![CircleCI](https://circleci.com/gh/emj365/xschange/tree/master.svg?style=svg)](https://circleci.com/gh/emj365/xschange/tree/master)
 
-An extreme simple exchange egine with Golang.
+An extreme simple ["Trade matching engine"](http://marketswiki.com/wiki/Trade_matching_engine) with Golang.
 
-Work in progress. Just for Fun.
+> A trade matching engine is the core software and hardware component of an electronic exchange. It matches up bids and offers to complete trades. Matching engines use one or several algorithms to allocate trades among competing bids and offers at the same price.
+
+-- http://marketswiki.com/wiki/Trade_matching_engine
+
+**Work in progress. Just for Fun.**
 
 ## Get start
 
