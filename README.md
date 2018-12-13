@@ -3,7 +3,8 @@
 [![CircleCI](https://circleci.com/gh/emj365/xschange/tree/master.svg?style=svg)](https://circleci.com/gh/emj365/xschange/tree/master)
 
 An extreme simple exchange egine with Golang.
-Work in progress. Just for Study.
+
+Work in progress. Just for Fun.
 
 ## Get start
 
