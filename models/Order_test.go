@@ -13,7 +13,7 @@ func TestModels(t *testing.T) {
 }
 
 var _ = Describe("Order", func() {
-	Describe("choosePeers", func() {
+	Describe("filterByType", func() {
 		Context("with orders", func() {
 
 			peers := []*Order{
@@ -26,7 +26,7 @@ var _ = Describe("Order", func() {
 			}
 
 			It("should filter pair orders by type", func() {
-				result := choosePeers(&peers, false)
+				result := filterByType(&peers, false)
 				Expect(len(result)).To(Equal(3))
 			})
 		})

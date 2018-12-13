@@ -25,7 +25,7 @@ func (o *Order) DoSettlement() {
 // Match create matchs for the order
 func (o *Order) Match(orders *[]*Order) {
 	peers := *orders
-	peers = choosePeers(&peers, !o.Selling)
+	peers = filterByType(&peers, !o.Selling)
 	peers = filterByPrice(&peers, !o.Selling, o.Price)
 	sortPeers(&peers, !o.Selling)
 
@@ -49,7 +49,7 @@ func (o *Order) Match(orders *[]*Order) {
 	}
 }
 
-// Create place a new order
+// Place create a new order
 func (o *Order) Place(orders *[]*Order) {
 	o.Remain = o.Quantity
 	o.CreatedAt = time.Now().Unix()
@@ -69,7 +69,7 @@ func (o *Order) Place(orders *[]*Order) {
 
 // private
 
-func choosePeers(peers *[]*Order, forBuyer bool) []*Order {
+func filterByType(peers *[]*Order, forBuyer bool) []*Order {
 	var new []*Order
 	for _, o := range *peers {
 		if o.Selling == forBuyer && o.Remain != 0 {
