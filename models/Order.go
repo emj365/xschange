@@ -29,7 +29,6 @@ func (o *Order) Match(orders *[]*Order) {
 	peers = filterByPrice(&peers, !o.Selling, o.Price)
 	sortPeers(&peers, !o.Selling)
 
-	fmt.Println("\033[2J")
 	for _, peer := range peers {
 		// fmt.Println(peer)
 		var match Match
@@ -58,6 +57,7 @@ func (o *Order) Place(orders *[]*Order) {
 	o.DoSettlement()
 	*orders = append(*orders, o)
 
+	fmt.Println("\033[2J")
 	log.Printf("orders: %v\n\n", orders)
 	for i, o := range *orders {
 		log.Printf("orders[%v]: %v\n", i, *o)
