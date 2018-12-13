@@ -58,11 +58,11 @@ func (o *Order) Place(orders *[]*Order) {
 	*orders = append(*orders, o)
 
 	fmt.Println("\033[2J")
-	log.Printf("orders: %v\n\n", orders)
+	log.Printf("orders: %#v\n\n", orders)
 	for i, o := range *orders {
-		log.Printf("orders[%v]: %v\n", i, *o)
+		log.Printf("orders[%v]: %#v\n", i, *o)
 		for j, p := range (*o).Matchs {
-			log.Printf("orders[%v].Matchs[%v]: %v\n", i, j, *p)
+			log.Printf("orders[%v].Matchs[%v]: %#v\n", i, j, *p)
 		}
 	}
 }
