@@ -1,6 +1,7 @@
 # xschange
 
 An extreme simple exchange egine with Golang.
+Work in progress. Just for Study.
 
 ## Run test
 
