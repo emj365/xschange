@@ -47,7 +47,7 @@ docker run -p 8000:8000 xschange
 ### Install dependencies
 
 ```bash
-go get github.com/onsi/ginkgo/ginkgo
+go install github.com/onsi/ginkgo/ginkgo
 ```
 
 ### Run
