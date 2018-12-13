@@ -38,8 +38,8 @@ func (o *Order) Match(orders *[]*Order) {
 			peer.Remain = 0
 		} else {
 			match = Match{Order: peer, Quantity: o.Remain, Price: peer.Price}
-			o.Remain = 0
 			peer.Remain -= o.Remain
+			o.Remain = 0
 		}
 
 		o.Matchs = append(o.Matchs, &match)
