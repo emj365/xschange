@@ -3,13 +3,21 @@
 An extreme simple exchange egine with Golang.
 Work in progress. Just for Study.
 
-## Run test
+## Get start
 
-### Install dependencies
+### Install Dependecies
+
+trun on Go1.11 module support:
 
 ```bash
-go get github.com/onsi/ginkgo/ginkgo
-go get github.com/onsi/gomega/
+export GO111MODULE=on
+```
+
+modules manager:
+
+```bash
+go get -u golang.org/x/vgo
+vgo install
 ```
 
 ### Run
@@ -31,7 +39,16 @@ Ginkgo ran 1 suite in 1.124721406s
 Test Suite Passed
 ```
 
-## Tryout with curl
+## Run test
+
+### Install dependencies
+
+```bash
+go get github.com/onsi/ginkgo/ginkgo
+go get github.com/onsi/gomega/
+```
+
+## Demo with curl
 
 ```bash
 curl localhost:8000/orders -d '{"userId":1, "selling":true, "quantity": 3, "price":10}'; sleep 0.1
