@@ -23,9 +23,18 @@ jobs:
     steps:
       - checkout
 
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
+
       # install dependencies
       - run: go mod download
       - run: go get github.com/onsi/ginkgo/ginkgo # for ginkgo bin
+
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
 
       # run test
       - run: ginkgo -r
