@@ -1,7 +1,6 @@
 package models
 
 // User data
-type user struct {
-	ID      uint
+type User struct {
 	Balance int
 }

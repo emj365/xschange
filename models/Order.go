@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-	"log"
 	"sort"
 	"time"
 )
@@ -19,7 +17,25 @@ type Order struct {
 }
 
 // DoSettlement caculate and set users' balance
-func (o *Order) DoSettlement() {
+func (o *Order) DoSettlement(users *[]*User) {
+	var buyer, seller *User
+	if o.Selling {
+		seller = (*users)[int(o.UserID)]
+	} else {
+		buyer = (*users)[int(o.UserID)]
+	}
+
+	for _, m := range (*o).Matchs {
+		if o.Selling {
+			buyer = (*users)[int((*m).Order.UserID)]
+		} else {
+			seller = (*users)[int((*m).Order.UserID)]
+		}
+
+		amount := m.Quantity * m.Price
+		(*buyer).Balance -= amount
+		(*seller).Balance += amount
+	}
 }
 
 // Match create matchs for the order
@@ -50,21 +66,12 @@ func (o *Order) Match(orders *[]*Order) {
 }
 
 // Place create a new order
-func (o *Order) Place(orders *[]*Order) {
+func (o *Order) Place(orders *[]*Order, users *[]*User) {
 	o.Remain = o.Quantity
 	o.CreatedAt = time.Now().Unix()
 	o.Match(orders)
-	o.DoSettlement()
+	o.DoSettlement(users)
 	*orders = append(*orders, o)
-
-	fmt.Println("\033[2J")
-	log.Printf("orders: %#v\n\n", orders)
-	for i, o := range *orders {
-		log.Printf("orders[%v]: %#v\n", i, *o)
-		for j, p := range (*o).Matchs {
-			log.Printf("orders[%v].Matchs[%v]: %#v\n", i, j, *p)
-		}
-	}
 }
 
 // private

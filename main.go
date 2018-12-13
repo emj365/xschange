@@ -5,11 +5,16 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/emj365/xschange/libs"
 	"github.com/emj365/xschange/models"
 	"github.com/gorilla/mux"
 )
 
 var orders = []*models.Order{}
+var users = []*models.User{
+	&models.User{Balance: 100},
+	&models.User{Balance: 100},
+}
 
 func main() {
 	router := mux.NewRouter()
@@ -37,6 +42,10 @@ func postOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	o.Place(&orders)
+	o.Place(&orders, &users)
+	libs.LogOrders(&orders)
+	for i, u := range users {
+		log.Printf("users[%v]: %#v\n", i, *u)
+	}
 	json.NewEncoder(w).Encode(o)
 }
