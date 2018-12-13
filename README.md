@@ -1,6 +1,7 @@
 # xschange
 
 [![CircleCI](https://circleci.com/gh/emj365/xschange/tree/master.svg?style=svg)](https://circleci.com/gh/emj365/xschange/tree/master)
+[![](https://images.microbadger.com/badges/image/emj365/xschange.svg)](https://microbadger.com/images/emj365/xschange "Get your own image badge on microbadger.com")
 
 An extreme simple ["Trade matching engine"](http://marketswiki.com/wiki/Trade_matching_engine) with Golang.
 
@@ -12,7 +13,9 @@ An extreme simple ["Trade matching engine"](http://marketswiki.com/wiki/Trade_ma
 
 ## Get start
 
-### Install Dependecies (Go1.11 module)
+### Method A: Go1.11 module
+
+#### Install Dependecies
 
 trun on Go1.11 module support:
 
@@ -26,10 +29,17 @@ get modules:
 go mod download
 ```
 
-### Run
+#### Run
 
 ```bash
 go run main.go
+```
+
+### Method B: docker
+
+```bash
+# https://hub.docker.com/r/emj365/xschange/
+docker run -p 8000:8000 xschange
 ```
 
 ## Run test
