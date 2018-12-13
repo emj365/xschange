@@ -1,11 +1,13 @@
 # xschange
 
+[![CircleCI](https://circleci.com/gh/emj365/xschange/tree/master.svg?style=svg)](https://circleci.com/gh/emj365/xschange/tree/master)
+
 An extreme simple exchange egine with Golang.
 Work in progress. Just for Study.
 
 ## Get start
 
-### Install Dependecies
+### Install Dependecies (Go1.11 module)
 
 trun on Go1.11 module support:
 
@@ -13,11 +15,24 @@ trun on Go1.11 module support:
 export GO111MODULE=on
 ```
 
-modules manager:
+get modules:
 
 ```bash
-go get -u golang.org/x/vgo
-vgo install
+go mod download
+```
+
+### Run
+
+```bash
+go run main.go
+```
+
+## Run test
+
+### Install dependencies
+
+```bash
+go get github.com/onsi/ginkgo/ginkgo
 ```
 
 ### Run
@@ -37,15 +52,6 @@ PASS
 
 Ginkgo ran 1 suite in 1.124721406s
 Test Suite Passed
-```
-
-## Run test
-
-### Install dependencies
-
-```bash
-go get github.com/onsi/ginkgo/ginkgo
-go get github.com/onsi/gomega/
 ```
 
 ## Demo with curl
