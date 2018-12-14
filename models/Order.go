@@ -5,19 +5,21 @@ import (
 	"time"
 )
 
+type OrderList []*Order
+
 // Order created by the user
 type Order struct {
-	UserID    uint     `json:"userID"`
-	Selling   bool     `json:"selling"`
-	Quantity  uint     `json:"quantity"`
-	Remain    uint     `json:"remain"`
-	Price     uint     `json:"price"`
-	Matchs    []*Match `json:"-"`
-	CreatedAt int64    `json:"createAt"`
+	UserID    uint      `json:"userID"`
+	Selling   bool      `json:"selling"`
+	Quantity  uint      `json:"quantity"`
+	Remain    uint      `json:"remain"`
+	Price     uint      `json:"price"`
+	Matchs    MatchList `json:"-"`
+	CreatedAt int64     `json:"createAt"`
 }
 
 // Place create a new order
-func (o *Order) Place(orders *[]*Order, users *[]*User) {
+func (o *Order) Place(orders *OrderList, users *[]*User) {
 	o.Remain = o.Quantity
 	o.CreatedAt = time.Now().UnixNano()
 
@@ -26,15 +28,15 @@ func (o *Order) Place(orders *[]*Order, users *[]*User) {
 	peers = filterByPrice(&peers, !o.Selling, o.Price)
 	sortPeers(&peers, !o.Selling)
 
-	o.match(orders, &peers)
-	o.doSettlement(users)
+	o.LinkMatchedOrders(&peers)
+	o.Matchs.ExchangeAssets(o.UserID, users)
 	*orders = append(*orders, o)
 }
 
 // private
 
-func filterByType(peers *[]*Order, forBuyer bool) []*Order {
-	var new []*Order
+func filterByType(peers *OrderList, forBuyer bool) OrderList {
+	var new OrderList
 	for _, o := range *peers {
 		unclosed := o.Remain != 0
 		if o.Selling == forBuyer && unclosed {
@@ -45,8 +47,8 @@ func filterByType(peers *[]*Order, forBuyer bool) []*Order {
 	return new
 }
 
-func filterByPrice(peers *[]*Order, forBuyer bool, price uint) []*Order {
-	var new []*Order
+func filterByPrice(peers *OrderList, forBuyer bool, price uint) OrderList {
+	var new OrderList
 	for _, p := range *peers {
 		goodPriceForBuyer := p.Price <= price
 		goodPriceForSeller := p.Price >= price
@@ -63,7 +65,7 @@ func filterByPrice(peers *[]*Order, forBuyer bool, price uint) []*Order {
 	return new
 }
 
-func sortPeers(peers *[]*Order, selling bool) {
+func sortPeers(peers *OrderList, selling bool) {
 	forBuyer := !selling
 	sort.Slice(*peers, func(i, j int) bool {
 		currentGreatThanNext := (*peers)[i].Price > (*peers)[j].Price
@@ -76,62 +78,45 @@ func sortPeers(peers *[]*Order, selling bool) {
 	})
 }
 
-// Match create matchs for the order
-func (o *Order) match(orders, peers *[]*Order) {
-	for _, p := range *peers {
+// LinkMatchedOrders set remain for both the order & matched orders and create Matchs for the order
+func (o *Order) LinkMatchedOrders(matchedOrders *OrderList) {
+	for _, matchedOrder := range *matchedOrders {
 		var matchedQuantity uint
-		var closeOrders, uncloseOrders []*Order
+		var closeOrders, uncloseOrders OrderList
 
-		peerRemainExactlyMatch := p.Remain == o.Remain
-		peerRemainIsGreater := p.Remain > o.Remain
+		peerRemainExactlyMatch := matchedOrder.Remain == o.Remain
+		peerRemainIsGreater := matchedOrder.Remain > o.Remain
 
 		if peerRemainExactlyMatch {
-			closeOrders = append(closeOrders, o, p)
+			closeOrders = append(closeOrders, o, matchedOrder)
 		} else if peerRemainIsGreater {
 			matchedQuantity = o.Remain
 			closeOrders = append(closeOrders, o)
-			uncloseOrders = append(uncloseOrders, p)
+			uncloseOrders = append(uncloseOrders, matchedOrder)
 		} else {
-			matchedQuantity = p.Remain
-			closeOrders = append(closeOrders, p)
+			matchedQuantity = matchedOrder.Remain
+			closeOrders = append(closeOrders, matchedOrder)
 			uncloseOrders = append(uncloseOrders, o)
 		}
 
+		// change reamin to 0 for orders those suppose to close
 		for _, closeOrder := range closeOrders {
 			closeOrder.Remain = 0
 		}
 
+		// calculate remain for orders those can be closed
 		for _, uncloseOrder := range uncloseOrders {
 			uncloseOrder.Remain -= matchedQuantity
 		}
 
-		match := Match{Order: p, Quantity: matchedQuantity, Price: p.Price}
+		// create Match with matched quantity of peer
+		match := Match{Order: matchedOrder,
+			Quantity: matchedQuantity, Price: matchedOrder.Price}
 		o.Matchs = append(o.Matchs, &match)
 
+		// break if this order can be closed
 		if peerRemainExactlyMatch || peerRemainIsGreater {
 			break
 		}
-	}
-}
-
-// DoSettlement caculate and set users' balance
-func (o *Order) doSettlement(users *[]*User) {
-	var buyer, seller *User
-	if o.Selling {
-		seller = (*users)[int(o.UserID)]
-	} else {
-		buyer = (*users)[int(o.UserID)]
-	}
-
-	for _, m := range (*o).Matchs {
-		if o.Selling {
-			buyer = (*users)[int((*m).Order.UserID)]
-		} else {
-			seller = (*users)[int((*m).Order.UserID)]
-		}
-
-		amount := m.Quantity * m.Price
-		(*buyer).Balance -= amount
-		(*seller).Balance += amount
 	}
 }
