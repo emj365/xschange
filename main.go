@@ -43,10 +43,16 @@ func postOrders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	o.Place(&orders, &users)
+	if err = o.Place(&orders, &users); err != nil {
+		w.WriteHeader(http.StatusNotAcceptable)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		return
+	}
+
+	json.NewEncoder(w).Encode(o)
+
 	libs.LogOrders(&orders)
 	for i, u := range users {
 		log.Printf("users[%v]: %v\n", i, *u)
 	}
-	json.NewEncoder(w).Encode(o)
 }

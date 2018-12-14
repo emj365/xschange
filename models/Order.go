@@ -15,8 +15,22 @@ type Order struct {
 	CreatedAt int64     `json:"createAt"`
 }
 
+// OrderError indicate error reate order
+type OrderError string
+
+func (e OrderError) Error() string { return string(e) }
+
+const (
+	BalanceNotEnoughErr = OrderError("Balance is not enough.")
+)
+
 // Place create a new order
-func (o *Order) Place(orders *OrderList, users *UserList) {
+func (o *Order) Place(orders *OrderList, users *UserList) error {
+	user := (*users)[o.UserID]
+	if !user.CheckBalanceForOrder(*o) {
+		return BalanceNotEnoughErr
+	}
+
 	o.Remain = o.Quantity
 	o.CreatedAt = time.Now().UnixNano()
 
@@ -28,6 +42,9 @@ func (o *Order) Place(orders *OrderList, users *UserList) {
 	o.LinkMatchedOrders(&peers)
 	o.Matchs.ExchangeAssets(o.UserID, users)
 	*orders = append(*orders, o)
+
+	user.Orders = append(user.Orders, o)
+	return nil
 }
 
 // LinkMatchedOrders set remain for both the order & matched orders and create Matchs for the order
