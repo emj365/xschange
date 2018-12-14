@@ -90,15 +90,15 @@ it returns:
 the final screen in server logs:
 
 ```bash
-2018/12/13 19:30:21 orders: &[]*models.Order{(*models.Order)(0xc0000b83c0), (*models.Order)(0xc00013c0a0), (*models.Order)(0xc0001600a0), (*models.Order)(0xc00013c280)}
+2018/12/14 14:49:16 orders: &[0xc0000b23c0 0xc00013c0a0 0xc0000b2550 0xc0000b2780]
 
-2018/12/13 19:30:21 orders[0]: models.Order{UserID:0x0, Selling:true, Quantity:3, Remain:0, Price:10, Matchs:[]*models.Match(nil), CreatedAt:1544700621}
-2018/12/13 19:30:21 orders[1]: models.Order{UserID:0x1, Selling:false, Quantity:1, Remain:0, Price:11, Matchs:[]*models.Match{(*models.Match)(0xc00000c080)}, CreatedAt:1544700621}
-2018/12/13 19:30:21 orders[1].Matchs[0]: models.Match{Order:(*models.Order)(0xc0000b83c0), Quantity:1, Price:10}
-2018/12/13 19:30:21 orders[2]: models.Order{UserID:0x1, Selling:false, Quantity:1, Remain:0, Price:11, Matchs:[]*models.Match{(*models.Match)(0xc000180040)}, CreatedAt:1544700621}
-2018/12/13 19:30:21 orders[2].Matchs[0]: models.Match{Order:(*models.Order)(0xc0000b83c0), Quantity:1, Price:10}
-2018/12/13 19:30:21 orders[3]: models.Order{UserID:0x1, Selling:false, Quantity:2, Remain:1, Price:11, Matchs:[]*models.Match{(*models.Match)(0xc00000c180)}, CreatedAt:1544700621}
-2018/12/13 19:30:21 orders[3].Matchs[0]: models.Match{Order:(*models.Order)(0xc0000b83c0), Quantity:1, Price:10}
-2018/12/13 19:30:21 users[0]: models.User{Balance:130}
-2018/12/13 19:30:21 users[1]: models.User{Balance:70}
+2018/12/14 14:49:16 orders[0]: {0 true 3 0 10 [] 1544770156008362000}
+2018/12/14 14:49:16 orders[1]: {1 false 1 0 11 [0xc00015a040] 1544770156130807000}
+2018/12/14 14:49:16 orders[1].Matchs[0]: {0xc0000b23c0 1 10}
+2018/12/14 14:49:16 orders[2]: {1 false 1 0 11 [0xc000098680] 1544770156253797000}
+2018/12/14 14:49:16 orders[2].Matchs[0]: {0xc0000b23c0 1 10}
+2018/12/14 14:49:16 orders[3]: {1 false 2 1 11 [0xc000098780] 1544770156376116000}
+2018/12/14 14:49:16 orders[3].Matchs[0]: {0xc0000b23c0 1 10}
+2018/12/14 14:49:16 users[0]: {97 130}
+2018/12/14 14:49:16 users[1]: {103 70}
 ```

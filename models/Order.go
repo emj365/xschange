@@ -19,7 +19,7 @@ type Order struct {
 }
 
 // Place create a new order
-func (o *Order) Place(orders *OrderList, users *[]*User) {
+func (o *Order) Place(orders *OrderList, users *UserList) {
 	o.Remain = o.Quantity
 	o.CreatedAt = time.Now().UnixNano()
 

@@ -11,7 +11,7 @@ type Match struct {
 type MatchList []*Match
 
 // ExchangeAssets handle user assets changes by matched orders
-func (matchs *MatchList) ExchangeAssets(orderUserID uint, users *[]*User) {
+func (matchs *MatchList) ExchangeAssets(orderUserID uint, users *UserList) {
 	for _, m := range *matchs {
 		forBuyerOrder := m.Order.Selling
 

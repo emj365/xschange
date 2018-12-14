@@ -8,7 +8,7 @@ import (
 var _ = Describe("MatchList", func() {
 	Describe("ExchangeAssets", func() {
 		Context("for seller order", func() {
-			users := []*User{
+			users := UserList{
 				&User{Balance: 10, GoodAmount: 10},
 				&User{Balance: 10, GoodAmount: 10},
 				&User{Balance: 10, GoodAmount: 10},
@@ -38,7 +38,7 @@ var _ = Describe("MatchList", func() {
 		})
 
 		Context("for buyer order", func() {
-			users := []*User{
+			users := UserList{
 				&User{Balance: 10, GoodAmount: 10},
 				&User{Balance: 10, GoodAmount: 10},
 				&User{Balance: 10, GoodAmount: 10},

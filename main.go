@@ -10,10 +10,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var orders = []*models.Order{}
-var users = []*models.User{
-	&models.User{Balance: 100},
-	&models.User{Balance: 100},
+var orders = models.OrderList{}
+
+var users = models.UserList{
+	&models.User{GoodAmount: 100, Balance: 100},
+	&models.User{GoodAmount: 100, Balance: 100},
 }
 
 func main() {
@@ -45,7 +46,7 @@ func postOrders(w http.ResponseWriter, r *http.Request) {
 	o.Place(&orders, &users)
 	libs.LogOrders(&orders)
 	for i, u := range users {
-		log.Printf("users[%v]: %#v\n", i, *u)
+		log.Printf("users[%v]: %v\n", i, *u)
 	}
 	json.NewEncoder(w).Encode(o)
 }
