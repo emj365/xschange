@@ -20,8 +20,10 @@ func (o *Order) Place(orders *OrderList, users *UserList) {
 	o.Remain = o.Quantity
 	o.CreatedAt = time.Now().UnixNano()
 
-	peers := *orders
-	peers.FilterByType(!o.Selling).FilterByPrice(!o.Selling, o.Price).Sort(!o.Selling)
+	peers := append(OrderList(nil),
+		*orders...)
+	peers = *peers.FilterByType(!o.Selling).FilterByPrice(!o.Selling, o.Price)
+	peers.Sort(!o.Selling)
 
 	o.LinkMatchedOrders(&peers)
 	o.Matchs.ExchangeAssets(o.UserID, users)
