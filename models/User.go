@@ -2,9 +2,9 @@ package models
 
 // User data
 type User struct {
-	Orders     OrderList
-	GoodAmount uint
-	Balance    uint
+	Orders     OrderList `json:"-"`
+	GoodAmount uint      `json:"goodAmount"`
+	Balance    uint      `json:"balance"`
 }
 
 // UserAvaliableBalance indicate how much balance is avliable for the new order

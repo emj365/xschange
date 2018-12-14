@@ -4,12 +4,12 @@ package models
 type MatchList []*Match
 
 // ExchangeAssets handle user assets changes by matched orders
-func (matchs *MatchList) ExchangeAssets(orderUserID uint, users *UserList) {
+func (matchs *MatchList) ExchangeAssets(orderUserID uint) {
 	for _, m := range *matchs {
 		forBuyerOrder := m.Order.Selling
 
-		orderUser := (*users)[int(orderUserID)]
-		matchedUser := (*users)[int(m.Order.UserID)]
+		orderUser := Data.Users[int(orderUserID)]
+		matchedUser := Data.Users[int(m.Order.UserID)]
 
 		var buyer, seller *User
 		if forBuyerOrder {

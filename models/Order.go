@@ -26,12 +26,12 @@ const (
 )
 
 // Place create a new order
-func (o *Order) Place(orders *OrderList, users *UserList) error {
-	if int(o.UserID) > len(*users)-1 {
+func (o *Order) Place() error {
+	if int(o.UserID) > len(Data.Users)-1 {
 		return UserNotExistErr
 	}
 
-	user := (*users)[o.UserID]
+	user := Data.Users[o.UserID]
 	if !user.CheckBalanceForOrder(*o) {
 		return BalanceNotEnoughErr
 	}
@@ -40,13 +40,13 @@ func (o *Order) Place(orders *OrderList, users *UserList) error {
 	o.CreatedAt = time.Now().UnixNano()
 
 	peers := append(OrderList(nil),
-		*orders...)
+		Data.Orders...)
 	peers = *peers.FilterByType(!o.Selling).FilterByPrice(!o.Selling, o.Price)
 	peers.Sort(!o.Selling)
 
 	o.LinkMatchedOrders(&peers)
-	o.Matchs.ExchangeAssets(o.UserID, users)
-	*orders = append(*orders, o)
+	o.Matchs.ExchangeAssets(o.UserID)
+	Data.Orders = append(Data.Orders, o)
 
 	user.Orders = append(user.Orders, o)
 	return nil
