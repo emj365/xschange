@@ -6,7 +6,9 @@ import (
 )
 
 var _ = Describe("MatchList", func() {
+
 	Describe("ExchangeAssets", func() {
+
 		Context("for seller order", func() {
 			users := UserList{
 				&User{Balance: 10, GoodAmount: 10},
@@ -66,5 +68,7 @@ var _ = Describe("MatchList", func() {
 				Expect(users[3].Balance).To(Equal(uint(13)))
 			})
 		})
+
 	})
+
 })

@@ -1,11 +1,8 @@
 package models
 
 import (
-	"sort"
 	"time"
 )
-
-type OrderList []*Order
 
 // Order created by the user
 type Order struct {
@@ -24,58 +21,11 @@ func (o *Order) Place(orders *OrderList, users *UserList) {
 	o.CreatedAt = time.Now().UnixNano()
 
 	peers := *orders
-	peers = filterByType(&peers, !o.Selling)
-	peers = filterByPrice(&peers, !o.Selling, o.Price)
-	sortPeers(&peers, !o.Selling)
+	peers.FilterByType(!o.Selling).FilterByPrice(!o.Selling, o.Price).Sort(!o.Selling)
 
 	o.LinkMatchedOrders(&peers)
 	o.Matchs.ExchangeAssets(o.UserID, users)
 	*orders = append(*orders, o)
-}
-
-// private
-
-func filterByType(peers *OrderList, forBuyer bool) OrderList {
-	var new OrderList
-	for _, o := range *peers {
-		unclosed := o.Remain != 0
-		if o.Selling == forBuyer && unclosed {
-			new = append(new, o)
-		}
-	}
-
-	return new
-}
-
-func filterByPrice(peers *OrderList, forBuyer bool, price uint) OrderList {
-	var new OrderList
-	for _, p := range *peers {
-		goodPriceForBuyer := p.Price <= price
-		goodPriceForSeller := p.Price >= price
-
-		if forBuyer && goodPriceForBuyer {
-			new = append(new, p)
-		}
-
-		if !forBuyer && goodPriceForSeller {
-			new = append(new, p)
-		}
-	}
-
-	return new
-}
-
-func sortPeers(peers *OrderList, selling bool) {
-	forBuyer := !selling
-	sort.Slice(*peers, func(i, j int) bool {
-		currentGreatThanNext := (*peers)[i].Price > (*peers)[j].Price
-
-		if forBuyer {
-			return currentGreatThanNext
-		}
-
-		return !currentGreatThanNext
-	})
 }
 
 // LinkMatchedOrders set remain for both the order & matched orders and create Matchs for the order

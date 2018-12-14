@@ -6,87 +6,10 @@ import (
 )
 
 var _ = Describe("Order", func() {
-	Describe("filterByType", func() {
-		Context("with orders", func() {
 
-			peers := OrderList{
-				&Order{Selling: true, Quantity: 1, Remain: 1},
-				&Order{Selling: true, Quantity: 1, Remain: 1},
-				&Order{Selling: false, Quantity: 1, Remain: 1},
-				&Order{Selling: false, Quantity: 1, Remain: 1},
-				&Order{Selling: false, Quantity: 1, Remain: 1},
-				&Order{Selling: false, Quantity: 1, Remain: 0},
-			}
+	Describe("Order.LinkMatchedOrders", func() {
 
-			It("should filter pair orders by type", func() {
-				result := filterByType(&peers, false)
-				Expect(len(result)).To(Equal(3))
-			})
-		})
-	})
-
-	Describe("sortPeers", func() {
-		Context("with orders have price", func() {
-
-			peers := OrderList{
-				&Order{Price: 11},
-				&Order{Price: 9},
-				&Order{Price: 12},
-				&Order{Price: 10},
-			}
-
-			It("should filter sort ASC for buyer", func() {
-				sortPeers(&peers, false)
-				Expect(peers[0].Price).To(Equal(uint(12)))
-				Expect(peers[1].Price).To(Equal(uint(11)))
-				Expect(peers[2].Price).To(Equal(uint(10)))
-				Expect(peers[3].Price).To(Equal(uint(9)))
-			})
-
-			It("should filter sort DESC for seller", func() {
-				sortPeers(&peers, true)
-				Expect(peers[0].Price).To(Equal(uint(9)))
-				Expect(peers[1].Price).To(Equal(uint(10)))
-				Expect(peers[2].Price).To(Equal(uint(11)))
-				Expect(peers[3].Price).To(Equal(uint(12)))
-			})
-		})
-	})
-
-	Describe("filterByPrice", func() {
-		Context("with orders have price", func() {
-
-			peers := OrderList{
-				&Order{Price: 1},
-				&Order{Price: 2},
-				&Order{Price: 3},
-				&Order{Price: 4},
-				&Order{Price: 5},
-				&Order{Price: 6},
-			}
-
-			It("filter for orders with pair price for buyer", func() {
-				result := filterByPrice(&peers, true, 4)
-				Expect(len(result)).To(Equal(4))
-				Expect(result[0].Price).To(Equal(uint(1)))
-				Expect(result[1].Price).To(Equal(uint(2)))
-				Expect(result[2].Price).To(Equal(uint(3)))
-				Expect(result[3].Price).To(Equal(uint(4)))
-			})
-
-			It("filter for orders with pair price for seller", func() {
-				result := filterByPrice(&peers, false, 4)
-				Expect(len(result)).To(Equal(3))
-				Expect(result[0].Price).To(Equal(uint(4)))
-				Expect(result[1].Price).To(Equal(uint(5)))
-				Expect(result[2].Price).To(Equal(uint(6)))
-			})
-		})
-	})
-
-	Describe("match", func() {
 		Context("with peers for buyer", func() {
-
 			peers := OrderList{
 				&Order{Remain: 2, Price: 2},
 				&Order{Remain: 1, Price: 2},
@@ -120,7 +43,6 @@ var _ = Describe("Order", func() {
 		})
 
 		Context("with peers for seller", func() {
-
 			peers := OrderList{
 				&Order{Remain: 1, Price: 4},
 				&Order{Remain: 3, Price: 3},
@@ -152,5 +74,7 @@ var _ = Describe("Order", func() {
 				Expect(peers[2].Remain).To(Equal(uint(1)))
 			})
 		})
+
 	})
+
 })
