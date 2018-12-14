@@ -22,10 +22,15 @@ func (e OrderError) Error() string { return string(e) }
 
 const (
 	BalanceNotEnoughErr = OrderError("Balance is not enough.")
+	UserNotExistErr     = OrderError("User not exist.")
 )
 
 // Place create a new order
 func (o *Order) Place(orders *OrderList, users *UserList) error {
+	if int(o.UserID) > len(*users)-1 {
+		return UserNotExistErr
+	}
+
 	user := (*users)[o.UserID]
 	if !user.CheckBalanceForOrder(*o) {
 		return BalanceNotEnoughErr

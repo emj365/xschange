@@ -44,7 +44,16 @@ func postOrders(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = o.Place(&orders, &users); err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
+		switch err {
+		case models.UserNotExistErr:
+			w.WriteHeader(http.StatusBadRequest)
+			break
+		case models.BalanceNotEnoughErr:
+			w.WriteHeader(http.StatusNotAcceptable)
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
 		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
