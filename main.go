@@ -25,9 +25,24 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+func createTestUsers() {
+	models.Data.Users = append(models.Data.Users, &models.User{Balance: 0, GoodAmount: 0})
+	models.Data.Users = append(models.Data.Users, &models.User{Balance: 0, GoodAmount: 0})
+	for _, user := range models.Data.Users {
+		models.Data.BalanceChanges.Add(&models.BalanceChange{
+			Balance:           100,
+			Good:              100,
+			User:              user,
+			IsDepositWithdrew: true,
+		})
+	}
+}
+
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
+
+	createTestUsers()
 
 	router := mux.NewRouter()
 	router.HandleFunc("/orders", controllers.GetOrders).Methods("GET")

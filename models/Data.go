@@ -7,17 +7,16 @@ import (
 type websocketConnects map[*websocket.Conn]bool
 
 type data struct {
-	Orders  OrderList
-	Users   UserList
-	Clients map[string]websocketConnects
+	Orders         OrderList
+	Users          UserList
+	Clients        map[string]websocketConnects
+	BalanceChanges BalanceChanges
 }
 
 var Data = data{
-	Orders: OrderList{},
-	Users: UserList{
-		&User{Balance: 100, GoodAmount: 100},
-		&User{Balance: 100, GoodAmount: 100},
-	},
+	Orders:         OrderList{},
+	Users:          UserList{},
+	BalanceChanges: BalanceChanges{},
 	Clients: map[string]websocketConnects{
 		"orders": make(websocketConnects),
 		"matchs": make(websocketConnects),

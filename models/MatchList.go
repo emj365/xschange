@@ -18,11 +18,22 @@ func (matchs *MatchList) ExchangeAssets(orderUserID uint) {
 			buyer, seller = matchedUser, orderUser
 		}
 
-		buyer.GoodAmount += m.Quantity
-		seller.GoodAmount -= m.Quantity
-
 		amount := m.Quantity * m.Price
-		buyer.Balance -= amount
-		seller.Balance += amount
+
+		// balance changes
+		buyerBalanceChange := new(BalanceChange)
+		buyerBalanceChange.Match = m
+		buyerBalanceChange.User = buyer
+		buyerBalanceChange.Good = int(m.Quantity)
+		buyerBalanceChange.Balance = int(amount) * -1
+
+		sellerBalanceChange := new(BalanceChange)
+		sellerBalanceChange.Match = m
+		sellerBalanceChange.User = seller
+		sellerBalanceChange.Good = int(m.Quantity) * -1
+		sellerBalanceChange.Balance = int(amount)
+
+		Data.BalanceChanges.Add(buyerBalanceChange)
+		Data.BalanceChanges.Add(sellerBalanceChange)
 	}
 }
