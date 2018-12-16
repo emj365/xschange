@@ -1,7 +1,11 @@
 package models
 
 import (
+	"encoding/json"
+	"log"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 // Order created by the user
@@ -39,17 +43,31 @@ func (o *Order) Place() error {
 	o.Remain = o.Quantity
 	o.CreatedAt = time.Now().UnixNano()
 
-	peers := append(OrderList(nil),
-		Data.Orders...)
+	Data.Orders = append(Data.Orders, o)
+	user.Orders = append(user.Orders, o)
+	return nil
+}
+
+func (o *Order) Process() {
+	peers := append(OrderList(nil), Data.Orders...)
 	peers = *peers.FilterByType(!o.Selling).FilterByPrice(!o.Selling, o.Price)
 	peers.Sort(!o.Selling)
 
 	o.LinkMatchedOrders(&peers)
 	o.Matchs.ExchangeAssets(o.UserID)
-	Data.Orders = append(Data.Orders, o)
 
-	user.Orders = append(user.Orders, o)
-	return nil
+	log.Printf("order trade: %v", o)
+
+	for client := range Data.Clients["orders"] {
+		// mu.Lock()
+		orderJSON, _ := json.Marshal(o)
+		err := client.WriteMessage(websocket.TextMessage, []byte(orderJSON))
+		if err != nil {
+			log.Printf("Websocket error: %s", err)
+			client.Close()
+			delete(Data.Clients["orders"], client)
+		}
+	}
 }
 
 // LinkMatchedOrders set remain for both the order & matched orders and create Matchs for the order
@@ -87,6 +105,17 @@ func (o *Order) LinkMatchedOrders(matchedOrders *OrderList) {
 		match := Match{Order: matchedOrder,
 			Quantity: matchedQuantity, Price: matchedOrder.Price}
 		o.Matchs = append(o.Matchs, &match)
+
+		for client := range Data.Clients["matchs"] {
+			// mu.Lock()
+			matchJSON, _ := json.Marshal(match)
+			err := client.WriteMessage(websocket.TextMessage, []byte(matchJSON))
+			if err != nil {
+				log.Printf("Websocket error: %s", err)
+				client.Close()
+				delete(Data.Clients["matchs"], client)
+			}
+		}
 
 		// break if this order can be closed
 		if peerRemainExactlyMatch || peerRemainIsGreater {

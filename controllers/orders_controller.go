@@ -2,10 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
-	"github.com/emj365/xschange/libs"
 	"github.com/emj365/xschange/models"
 )
 
@@ -44,8 +42,9 @@ func PostOrders(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(o)
 
-	libs.LogOrders(&models.Data.Orders)
-	for i, u := range models.Data.Users {
-		log.Printf("users[%v]: %v\n", i, *u)
-	}
+	go o.Process()
+	// libs.LogOrders(&models.Data.Orders)
+	// for i, u := range models.Data.Users {
+	// 	log.Printf("users[%v]: %v\n", i, *u)
+	// }
 }

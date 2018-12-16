@@ -17,5 +17,4 @@ func LogOrders(orders *models.OrderList) {
 			log.Printf("orders[%v].Matchs[%v]: %v\n", i, j, *p)
 		}
 	}
-
 }
