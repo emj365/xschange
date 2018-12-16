@@ -13,12 +13,6 @@ import (
 
 var addr = flag.String("addr", "localhost:8000", "http service address")
 
-type longLatStruct struct {
-	Long float64 `json:"longitude"`
-	Lat  float64 `json:"latitude"`
-}
-
-var broadcast = make(chan *longLatStruct)
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
