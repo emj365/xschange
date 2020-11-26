@@ -1,101 +1,142 @@
 package services
 
 import (
-	"encoding/json"
-	"net/http"
-
-	"github.com/emj365/xschange/models"
+	"errors"
 )
 
-type Exchanger interface {
-	// start()
-	// stop()
-	PlaceOrder(w http.ResponseWriter, o models.Order) error
-	CancelOrder(w http.ResponseWriter, oID uint) error
-}
-
-type PublishEventFunc func(event models.Event)
-type CreateMatch func(m models.Match)
-type CreateBalanceChange func(m models.BalanceChange)
-
-type OrdersManager interface {
-	Place(o models.Order) error
-	Cancel(oID uint) (models.Order, error)
-	Process(PublishEventFunc, CreateMatch, CreateBalanceChange) error
-}
-
-type UsersManager interface {
-	Find(uID uint) error
-}
-
-type MatchesManager interface {
-	Create(m models.Match)
-}
-
-type BalanceChangesManager interface {
-	Create(bc models.BalanceChange)
-}
-
-type Listener interface {
-	Process(e models.Event)
+type Marketer interface {
+	PlaceOrder(o Order) error
+	CancelOrder(oID uint) error
 }
 
 /*
-	ExchangeEngine
+TradeExchangeEngine is implementation of Marketer
 */
 
-var _ Exchanger = NewExchangeEngine(nil, nil, nil, nil, nil) // just for verification
+var _ Marketer = NewExchangeEngine(nil, nil, nil, nil, nil)
 
 func NewExchangeEngine(
-	u UsersManager,
-	o OrdersManager,
-	m MatchesManager,
-	bc BalanceChangesManager,
+	u UserExistentChecker,
+	o Trader,
+	m Matcher,
+	ex Exchanger,
 	l []Listener,
-) *ExchangeEngine {
-	return &ExchangeEngine{
-		u, o, m, bc, l,
+) *TradeExchangeEngine {
+	return &TradeExchangeEngine{
+		u, o, m, ex, l,
 	}
 }
 
-type ExchangeEngine struct {
-	Users          UsersManager
-	Orders         OrdersManager
-	Matches        MatchesManager
-	BalanceChanges BalanceChangesManager
-	listeners      []Listener
+type TradeExchangeEngine struct {
+	userExistentChecker UserExistentChecker
+	trader              Trader
+	matcher             Matcher
+	exchanger           Exchanger
+	listeners           []Listener
 }
 
-func (e ExchangeEngine) PlaceOrder(w http.ResponseWriter, o models.Order) error {
-	if err := e.Users.Find(o.UserID); err != nil {
-		return err
+func (e TradeExchangeEngine) PlaceOrder(o Order) error {
+	if e.userExistentChecker.Check(o.UserID) {
+		return errors.New("user not found")
 	}
 
-	if err := e.Orders.Place(o); err != nil {
-		return err
-	}
+	e.trader.Place(o)
+	orders := e.trader.GetOrders()
+	e.publishEvent(Event{Name: "order has placed", Payload: o})
 
-	json.NewEncoder(w).Encode(o)
+	matches := e.matcher.Match(&o, orders)
+	e.exchanger.Exchange(o.UserID, matches, func(c BalanceChange) {
+		e.publishEvent(Event{Name: "balance has changed", Payload: c})
+	})
 
-	return e.Orders.Process(
-		e.publishEvent,
-		e.Matches.Create,
-		e.BalanceChanges.Create,
-	)
-}
-
-func (e ExchangeEngine) CancelOrder(w http.ResponseWriter, oID uint) error {
-	o, err := e.Orders.Cancel(oID)
-	if err != nil {
-		return err
-	}
-
-	json.NewEncoder(w).Encode(o)
 	return nil
 }
 
-func (e ExchangeEngine) publishEvent(event models.Event) {
-	for _, l := range e.listeners {
-		l.Process(event)
+func (e TradeExchangeEngine) CancelOrder(oID uint) error {
+	o, canceled := e.trader.Cancel(oID)
+	if !canceled {
+		return errors.New("order can not be cancel ")
 	}
+
+	e.publishEvent(Event{Name: "order has canceled", Payload: o})
+	return nil
+}
+
+func (e TradeExchangeEngine) publishEvent(event Event) {
+	for _, l := range e.listeners {
+		l.Listen(event)
+	}
+}
+
+/*
+dependencies of TradeExchangeEngine
+*/
+
+type UserExistentChecker interface {
+	Check(uID uint) bool
+}
+
+type Trader interface {
+	Place(o Order)
+	Cancel(oID uint) (Order, bool)
+	GetOrders() *[]Order
+}
+
+type Matcher interface {
+	Match(o *Order, orders *[]Order) *[]Match
+}
+
+type Exchanger interface {
+	Exchange(uID uint, o *[]Match, onChanged func(BalanceChange))
+}
+
+type Listener interface {
+	Listen(e Event)
+}
+
+/*
+models
+*/
+
+type Event struct {
+	Name    string
+	Payload interface{}
+}
+
+type Order struct {
+	UserID    uint     `json:"userID"`
+	Selling   bool     `json:"selling"`
+	Quantity  uint     `json:"quantity"`
+	Remain    uint     `json:"remain"`
+	Price     uint     `json:"price"`
+	Matchs    []*Match `json:"-"`
+	CreatedAt int64    `json:"createAt"`
+}
+
+// Match is one of trades of order
+type Match struct {
+	Order    *Order
+	Quantity uint
+	Price    uint
+}
+
+type User struct {
+	Orders     []*Order `json:"-"`
+	GoodAmount uint     `json:"goodAmount"`
+	Balance    uint     `json:"balance"`
+}
+
+// UserAvaliableBalance indicate how much balance is avaliable for the new order
+type UserAvaliableBalance struct {
+	GoodAmount uint
+	Balance    uint
+}
+
+type BalanceChange struct {
+	Good              int
+	Balance           int
+	User              *User
+	Match             *Match // be provided if it is trade
+	Order             *Order // be provided if it is margin
+	IsDepositWithdrew bool
 }
